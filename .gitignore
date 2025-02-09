@@ -40,7 +40,6 @@ timeline_cache.json
 
 *.sqlite
 
-characters/
 !characters/bridget.character.json
 
 packages/core/src/providers/cache
