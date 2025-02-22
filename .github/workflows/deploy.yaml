@@ -44,7 +44,7 @@ jobs:
             # Initialize git repository if it doesn't exist
             if [ ! -d .git ]; then
               git init
-              git remote add origin https://github.com/ramiechaarani/wavesai.git
+              git remote add origin https://github.com/KurtVobain/chmp.git
             fi
 
             # Fetch latest code and handle local changes
