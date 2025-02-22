@@ -38,8 +38,8 @@ jobs:
           script: |
             echo "Connected to Droplet"
             # Create app directory if it doesn't exist
-            mkdir -p ~/waves-agent-apis
-            cd ~/waves-agent-apis
+            mkdir -p ~/chump-agent-apis
+            cd ~/chump-agent-apis
 
             # Initialize git repository if it doesn't exist
             if [ ! -d .git ]; then
