@@ -37,6 +37,29 @@ jobs:
           password: ${{ secrets.DROPLET_PASSWORD }}
           script: |
             echo "Connected to Droplet"
+
+            # Install nvm if not installed
+            if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
+              echo "Installing nvm..."
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+              source ~/.bashrc
+            fi
+            source ~/.nvm/nvm.sh
+            nvm install 22
+            nvm use 22
+
+            # Install pnpm globally if not installed
+            if ! command -v pnpm &> /dev/null; then
+              echo "Installing pnpm globally..."
+              npm install -g pnpm
+            fi
+
+            # Install pm2 globally if not installed
+            if ! command -v pm2 &> /dev/null; then
+              echo "Installing pm2 globally..."
+              npm install -g pm2
+            fi
+
             # Create app directory if it doesn't exist
             mkdir -p ~/chump-agent-apis
             cd ~/chump-agent-apis
@@ -74,12 +97,15 @@ jobs:
               npm install -g pnpm
             fi
 
-            # Ensure correct Node.js version
+            # Ensure correct Node.js version again (optional redundancy)
             source ~/.nvm/nvm.sh
             nvm use 22
 
-            # Install dependencies
-            pnpm install
+            # Install dependencies including devDependencies (needed for building)
+            pnpm install --prod=false
 
-            # Restart the application
+            # Build the project
+            pnpm build
+
+            # Restart the application with PM2 using the ecosystem config
             pm2 restart ecosystem.config.cjs --update-env
