@@ -41,6 +41,9 @@ jobs:
             mkdir -p ~/chump-agent-apis
             cd ~/chump-agent-apis
 
+            # Write the .env file from a single GitHub secret
+            echo "${{ secrets.ENV_FILE }}" > .env
+
             # Initialize git repository if it doesn't exist
             if [ ! -d .git ]; then
               git init
