@@ -75,9 +75,9 @@ jobs:
 
             # Fetch latest code and handle local changes
             git fetch --all
-            git checkout -B ${{ github.ref_name }} origin/${{ github.ref_name }}
+            git checkout -B master origin/master
             git reset HEAD --hard
-            git pull origin/${{ github.ref_name }}
+            git pull origin master
 
             echo "Current branch:"
             git branch --show-current
