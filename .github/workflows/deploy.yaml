@@ -35,6 +35,7 @@ jobs:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           password: ${{ secrets.DROPLET_PASSWORD }}
+          envs: REPO_NAME=${{ github.repository }}
           script: |
             echo "Connected to Droplet"
 
@@ -70,7 +71,7 @@ jobs:
             # Initialize git repository if it doesn't exist
             if [ ! -d .git ]; then
               git init
-              git remote add origin https://github.com/KurtVobain/BridgetAI.git
+              git remote add origin https://github.com/$REPO_NAME.git
             fi
 
             # Fetch latest code and handle local changes
