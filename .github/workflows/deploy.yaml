@@ -35,7 +35,6 @@ jobs:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           password: ${{ secrets.DROPLET_PASSWORD }}
-          envs: REPO_NAME=${{ github.repository }}
           script: |
             echo "Connected to Droplet"
 
@@ -68,29 +67,23 @@ jobs:
             # Write the .env file from a single GitHub secret
             echo "${{ secrets.ENV_FILE }}" > .env
 
-            # Initialize git repository if it doesn't exist
+            # Clone the repository directly instead of using git init
             if [ ! -d .git ]; then
-              git init
-              git remote add origin https://github.com/$REPO_NAME.git
+              echo "Cloning repository..."
+              # Remove the directory content first to avoid conflicts
+              rm -rf * .[^.]*
+              git clone https://github.com/$(echo "${{ github.repository }}").git .
+            else
+              # Update existing repository
+              git fetch --all
+              git reset --hard origin/master
+              git pull origin master
             fi
-
-            # Fetch latest code and handle local changes
-            git fetch --all
-            git checkout -B master origin/master
-            git reset HEAD --hard
-            git pull origin master
 
             echo "Current branch:"
             git branch --show-current
             echo "Git status:"
             git status
-
-            # Install bun globally if not already installed
-            if ! command -v bun &> /dev/null; then
-              echo "Installing bun globally..."
-              sudo curl -fsSL https://bun.sh/install | sudo bash
-              sudo ln -s ~/.bun/bin/bun /usr/local/bin/bun
-            fi
 
             # Install pnpm if not already installed
             if ! command -v pnpm &> /dev/null; then
