@@ -98,7 +98,11 @@ jobs:
             # Install dependencies including devDependencies (needed for building)
             pnpm install --prod=false
 
-            # Build the project
+            # Add node_modules/.bin to PATH to ensure tsup is found
+            export PATH="$PATH:$(pwd)/node_modules/.bin"
+            echo "Added node_modules/.bin to PATH: $PATH"
+            
+            # Build the project 
             pnpm build
 
             # Restart the application with PM2 using the ecosystem config
