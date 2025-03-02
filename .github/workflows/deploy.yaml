@@ -61,8 +61,8 @@ jobs:
             fi
 
             # Create app directory if it doesn't exist
-            mkdir -p ~/chump-agent-apis
-            cd ~/chump-agent-apis
+            mkdir -p ~/bridget-agent-apis
+            cd ~/bridget-agent-apis
 
             # Write the .env file from a single GitHub secret
             echo "${{ secrets.ENV_FILE }}" > .env
