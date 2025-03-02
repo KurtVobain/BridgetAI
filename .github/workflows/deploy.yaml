@@ -38,6 +38,17 @@ jobs:
           script: |
             echo "Connected to Droplet"
 
+            # Create swap file if it doesn't exist to prevent out-of-memory issues
+            if [ ! -f /swapfile ]; then
+              echo "Creating swap file to prevent memory issues..."
+              sudo fallocate -l 2G /swapfile
+              sudo chmod 600 /swapfile
+              sudo mkswap /swapfile
+              sudo swapon /swapfile
+              echo "/swapfile none swap sw 0 0" | sudo tee -a /etc/fstab
+              echo "Swap created and enabled."
+            fi
+
             # Install nvm if not installed
             if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
               echo "Installing nvm..."
@@ -85,25 +96,40 @@ jobs:
             echo "Git status:"
             git status
 
-            # Install pnpm if not already installed
-            if ! command -v pnpm &> /dev/null; then
-              echo "Installing pnpm globally..."
-              npm install -g pnpm
-            fi
-
-            # Ensure correct Node.js version again (optional redundancy)
+            # Ensure correct Node.js version again
             source ~/.nvm/nvm.sh
             nvm use 22
 
-            # Install dependencies including devDependencies (needed for building)
-            pnpm install --prod=false
+            # Install global tsup and other required tools to ensure they're available
+            echo "Installing global build tools..."
+            npm install -g tsup ts-node typescript
 
-            # Add node_modules/.bin to PATH to ensure tsup is found
+            # Increase Node.js memory limit
+            export NODE_OPTIONS="--max-old-space-size=4096"
+            echo "Set Node.js memory limit: $NODE_OPTIONS"
+
+            # Install dependencies in smaller chunks to avoid memory issues
+            echo "Installing production dependencies..."
+            pnpm install --prod --no-frozen-lockfile
+            
+            echo "Installing dev dependencies..."
+            pnpm install --dev --no-frozen-lockfile
+
+            # Add node_modules/.bin to PATH
             export PATH="$PATH:$(pwd)/node_modules/.bin"
             echo "Added node_modules/.bin to PATH: $PATH"
             
-            # Build the project 
-            pnpm build
+            # Verify tsup is available
+            which tsup || echo "tsup not found in path"
+            
+            # Use global tsup if local one is not available
+            if ! command -v tsup &> /dev/null; then
+              echo "Using global tsup for build..."
+              tsup src/index.ts --format esm --dts
+            else
+              echo "Using local tsup for build..."
+              pnpm build
+            fi
 
             # Restart the application with PM2 using the ecosystem config
             pm2 restart ecosystem.config.cjs --update-env
