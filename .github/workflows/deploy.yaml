@@ -100,9 +100,9 @@ jobs:
             source ~/.nvm/nvm.sh
             nvm use 22
 
-            # Install global tsup and other required tools to ensure they're available
-            echo "Installing global build tools..."
-            npm install -g tsup ts-node typescript
+            # # Install global tsup and other required tools to ensure they're available
+            # echo "Installing global build tools..."
+            # npm install -g tsup ts-node typescript
 
             # Increase Node.js memory limit
             export NODE_OPTIONS="--max-old-space-size=4096"
@@ -110,10 +110,7 @@ jobs:
 
             # Install dependencies in smaller chunks to avoid memory issues
             echo "Installing production dependencies..."
-            pnpm install --prod --no-frozen-lockfile
-            
-            echo "Installing dev dependencies..."
-            pnpm install --dev --no-frozen-lockfile
+            pnpm install --no-frozen-lockfile
 
             # Add node_modules/.bin to PATH
             export PATH="$PATH:$(pwd)/node_modules/.bin"
